@@ -55,6 +55,17 @@ public class IntentTest {
     }
 
     @Test
+    public void testParcelableArrayExtra() throws Exception {
+        Intent intent = new Intent();
+        Parcelable parcelable = new TestParcelable();
+        intent.putExtra("foo", parcelable);
+        assertSame(null, intent.getParcelableArrayExtra("foo"));
+        Parcelable[] parcelables = {new TestParcelable(), new TestParcelable()};
+        assertSame(intent, intent.putExtra("bar", parcelables));
+        assertSame(parcelables, intent.getParcelableArrayExtra("bar"));
+    }
+
+    @Test
     public void testLongExtra() throws Exception {
         Intent intent = new Intent();
         assertSame(intent, intent.putExtra("foo", 2L));
