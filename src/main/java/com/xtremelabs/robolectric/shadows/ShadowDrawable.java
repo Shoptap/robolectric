@@ -19,10 +19,13 @@ public class ShadowDrawable {
     private Rect bounds = new Rect(0, 0, 0, 0);
     private int intrinsicWidth = -1;
     private int intrinsicHeight = -1;
+    private InputStream inputStream;
 
     @Implementation
     public static Drawable createFromStream(InputStream is, String srcName) {
-        return new BitmapDrawable();
+        BitmapDrawable bitmapDrawable = new BitmapDrawable();
+        shadowOf(bitmapDrawable).setInputStream(is);
+        return bitmapDrawable;
     }
 
     @Implementation
@@ -56,6 +59,14 @@ public class ShadowDrawable {
 
     public void setIntrinsicHeight(int intrinsicHeight) {
         this.intrinsicHeight = intrinsicHeight;
+    }
+
+    public InputStream getInputStream() {
+        return inputStream;
+    }
+
+    public void setInputStream(InputStream inputStream) {
+        this.inputStream = inputStream;
     }
 
     @Override @Implementation
