@@ -1,6 +1,7 @@
 package com.xtremelabs.robolectric.shadows;
 
 import android.app.Activity;
+import android.graphics.Point;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -127,7 +128,6 @@ public class ViewTest {
         shadowOf(view).checkedPerformClick();
     }
 
-
     @Test
     public void shouldRecordBackgroundColor() {
         int[] colors = {0, 1, 727};
@@ -167,5 +167,11 @@ public class ViewTest {
         new View(null);
         new View(null, null);
         new View(null, null, 0);
+    }
+
+    @Test
+    public void scrollTo_shouldStoreTheScrolledCoordinates() throws Exception {
+        view.scrollTo(1, 2);
+        assertThat(shadowOf(view).scrollToCoordinates, equalTo(new Point(1, 2)));
     }
 }

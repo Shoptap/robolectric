@@ -3,6 +3,7 @@ package com.xtremelabs.robolectric.shadows;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -58,6 +59,7 @@ public class ShadowView {
     private View.OnTouchListener onTouchListener;
     protected AttributeSet attributeSet;
     private boolean drawingCacheEnabled;
+    public Point scrollToCoordinates;
 
     public void __constructor__(Context context) {
         __constructor__(context, null);
@@ -658,5 +660,10 @@ public class ShadowView {
     @Implementation
     public void postDelayed(Runnable action, long delayMills) {
         Robolectric.getUiThreadScheduler().postDelayed(action, delayMills);
+    }
+
+    @Implementation
+    public void scrollTo(int x, int y) {
+        this.scrollToCoordinates = new Point(x, y);
     }
 }
