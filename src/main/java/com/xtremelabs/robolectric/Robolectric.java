@@ -32,6 +32,7 @@ import android.nfc.NdefRecord;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.ResultReceiver;
 import android.preference.DialogPreference;
 import android.preference.Preference;
 import android.view.*;
@@ -190,6 +191,7 @@ public class Robolectric {
                 ShadowProgressBar.class,
                 ShadowRect.class,
                 ShadowRemoteViews.class,
+                ShadowResultReceiver.class,
                 ShadowResources.class,
                 ShadowResources.ShadowTheme.class,
                 ShadowSeekBar.class,
@@ -388,6 +390,10 @@ public class Robolectric {
 
     public static ShadowResources shadowOf(Resources instance) {
         return (ShadowResources) shadowOf_(instance);
+    }
+
+    public static ShadowResultReceiver shadowOf(ResultReceiver instance) {
+        return (ShadowResultReceiver) shadowOf_(instance);
     }
 
     public static ShadowLayoutInflater shadowOf(LayoutInflater instance) {
