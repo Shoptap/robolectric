@@ -2,6 +2,8 @@ package com.xtremelabs.robolectric.shadows;
 
 import android.app.Activity;
 import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -16,16 +18,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 @RunWith(WithTestDefaultsRunner.class)
 public class ViewTest {
     private View view;
 
-    @Before public void setUp() throws Exception {
-        view = new View(null);
+    @Before
+    public void setUp() throws Exception {
+        view = new View(new Activity());
     }
 
     @Test
@@ -173,5 +175,22 @@ public class ViewTest {
     public void scrollTo_shouldStoreTheScrolledCoordinates() throws Exception {
         view.scrollTo(1, 2);
         assertThat(shadowOf(view).scrollToCoordinates, equalTo(new Point(1, 2)));
+    }
+
+    @Test
+    public void getBackground_shouldReturnNullIfNoBackgroundHasBeenSet() throws Exception {
+        assertThat(view.getBackground(), nullValue());
+    }
+
+    @Test
+    public void getBackground_whenSetFromAResourceId_shouldReturnADrawable() throws Exception {
+        view.setBackgroundResource(R.drawable.an_image);
+        assertThat(view.getBackground(), instanceOf(Drawable.class));
+    }
+
+    @Test
+    public void getBackground_whenSetFromAColor_shouldReturnAColorDrawable() throws Exception {
+        view.setBackgroundColor(R.color.black);
+        assertThat(view.getBackground(), instanceOf(ColorDrawable.class));
     }
 }

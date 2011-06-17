@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -60,6 +62,7 @@ public class ShadowView {
     protected AttributeSet attributeSet;
     private boolean drawingCacheEnabled;
     public Point scrollToCoordinates;
+    private Drawable background;
 
     public void __constructor__(Context context) {
         __constructor__(context, null);
@@ -201,6 +204,41 @@ public class ShadowView {
     @Implementation
     public void setBackgroundResource(int backgroundResourceId) {
         this.backgroundResourceId = backgroundResourceId;
+        setBackgroundDrawable(getResources().getDrawable(backgroundResourceId));
+    }
+
+    /**
+     * Non-Android accessor.
+     *
+     * @return the resource ID of this views background
+     */
+    public int getBackgroundResourceId() {
+        return backgroundResourceId;
+    }
+
+    @Implementation
+    public void setBackgroundColor(int color) {
+        backgroundColor = color;
+        setBackgroundDrawable(new ColorDrawable(getResources().getColor(color)));
+    }
+
+    /**
+     * Non-Android accessor.
+     *
+     * @return the resource color ID of this views background
+     */
+    public int getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    @Implementation
+    public void setBackgroundDrawable(Drawable d) {
+        this.background = d;
+    }
+
+    @Implementation
+    public Drawable getBackground() {
+        return background;
     }
 
     @Implementation
@@ -457,24 +495,6 @@ public class ShadowView {
     @Implementation
     public boolean isClickable() {
         return clickable;
-    }
-
-    /**
-     * Non-Android accessor.
-     *
-     * @return the resource ID of this views background
-     */
-    public int getBackgroundResourceId() {
-        return backgroundResourceId;
-    }
-
-    @Implementation
-    public void setBackgroundColor(int color) {
-        backgroundColor = color;
-    }
-
-    public int getBackgroundColor() {
-        return backgroundColor;
     }
 
     /**
