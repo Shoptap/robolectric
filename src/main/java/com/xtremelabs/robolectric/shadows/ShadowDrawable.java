@@ -20,6 +20,7 @@ public class ShadowDrawable {
     private int intrinsicWidth = -1;
     private int intrinsicHeight = -1;
     private InputStream inputStream;
+    private int level;
 
     @Implementation
     public static Drawable createFromStream(InputStream is, String srcName) {
@@ -67,6 +68,20 @@ public class ShadowDrawable {
 
     public void setInputStream(InputStream inputStream) {
         this.inputStream = inputStream;
+    }
+
+    @Implementation
+    public int getLevel() {
+        return level;
+    }
+
+    @Implementation
+    public boolean setLevel(int level) {
+        this.level = level;
+        // This should return true if the new level causes a layout change.
+        // Doing this in robolectric would require parsing level sets which
+        // is not currently supported.
+        return false;
     }
 
     @Override @Implementation
