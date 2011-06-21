@@ -1,5 +1,6 @@
 package com.xtremelabs.robolectric.shadows;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
@@ -25,6 +26,7 @@ public class ShadowTextView extends ShadowView {
     private int autoLinkMask;
     private CharSequence hintText;
     private int compoundDrawablePadding;
+    private int textAppearanceId;
 
     @Override public void applyAttributes() {
         super.applyAttributes();
@@ -68,6 +70,11 @@ public class ShadowTextView extends ShadowView {
     @Implementation
     public final void setHint(int resId) {
         this.hintText = getResources().getText(resId);
+    }
+
+    @Implementation
+    public void setTextAppearance(Context context, int resid) {
+        textAppearanceId = resid;
     }
 
     @Implementation
@@ -200,6 +207,10 @@ public class ShadowTextView extends ShadowView {
                 attributeSet.getAttributeResourceValue("android", "drawableTop", 0),
                 attributeSet.getAttributeResourceValue("android", "drawableRight", 0),
                 attributeSet.getAttributeResourceValue("android", "drawableBottom", 0));
+    }
+
+    public int getTextAppearanceId() {
+        return textAppearanceId;
     }
 
     public static class CompoundDrawables {

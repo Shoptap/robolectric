@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -24,6 +25,14 @@ public class TextViewTest {
                 "http://google.com/",
                 "http://another.com/123?456"
         )));
+    }
+
+    @Test
+    public void testGetTextAppearanceId() throws Exception {
+        TextView textView = new TextView(null);
+        textView.setTextAppearance(null, 5);
+
+        assertThat(shadowOf(textView).getTextAppearanceId(), equalTo(5));
     }
 
     private List<String> urlStringsFrom(URLSpan[] urlSpans) {
