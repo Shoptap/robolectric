@@ -29,6 +29,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
@@ -157,6 +158,7 @@ public class Robolectric {
                 ShadowImageView.class,
                 ShadowIntent.class,
                 ShadowIntentFilter.class,
+                ShadowIntentFilterAuthorityEntry.class,
                 ShadowItemizedOverlay.class,
                 ShadowKeyEvent.class,
                 ShadowLayoutInflater.class,
@@ -179,6 +181,7 @@ public class Robolectric {
                 ShadowNotification.class,
                 ShadowNdefMessage.class,
                 ShadowNdefRecord.class,
+                ShadowNfcAdapter.class,
                 ShadowNotificationManager.class,
                 ShadowNetworkInfo.class,
                 ShadowOverlayItem.class,
@@ -324,6 +327,10 @@ public class Robolectric {
 
     public static ShadowNdefRecord shadowOf(NdefRecord instance) {
         return (ShadowNdefRecord) shadowOf_(instance);
+    }
+
+    public static ShadowNfcAdapter shadowOf(NfcAdapter instance) {
+        return (ShadowNfcAdapter) shadowOf_(instance);
     }
 
     public static ShadowView shadowOf(View instance) {
