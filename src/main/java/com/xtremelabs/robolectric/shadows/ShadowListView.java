@@ -45,14 +45,21 @@ public class ShadowListView extends ShadowAdapterView {
 
     @Implementation
     public void addHeaderView(View headerView) {
+        addHeaderView(headerView, null, true);
+    }
+
+    @Implementation
+    public void addHeaderView(View headerView, Object data, boolean isSelectable) {
         ensureAdapterNotSet("header");
         headerViews.add(headerView);
+        realListView.addView(headerView);
     }
 
     @Implementation
     public void addFooterView(View footerView, Object data, boolean isSelectable) {
         ensureAdapterNotSet("footer");
         footerViews.add(footerView);
+        realListView.addView(footerView);
     }
 
     @Implementation
@@ -60,6 +67,20 @@ public class ShadowListView extends ShadowAdapterView {
         addFooterView(footerView, null, false);
     }
 
+    @Implementation
+    public void removeAllViews() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Implementation
+    public void removeView(View view) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Implementation
+    public void removeViewAt(int index) {
+        throw new UnsupportedOperationException();
+    }
 
     public boolean performItemClick(int position) {
         return realListView.performItemClick(realListView.getChildAt(position), position, realListView.getItemIdAtPosition(position));
@@ -116,5 +137,18 @@ public class ShadowListView extends ShadowAdapterView {
 
     public void setFooterViews(List<View> footerViews) {
         this.footerViews = footerViews;
+    }
+
+    @Override
+    protected void addViews() {
+        for (View headerView : headerViews) {
+            addView(headerView);
+        }
+
+        super.addViews();
+
+        for (View footerView : footerViews) {
+            addView(footerView);
+        }
     }
 }

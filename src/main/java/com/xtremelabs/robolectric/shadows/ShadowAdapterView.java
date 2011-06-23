@@ -142,8 +142,11 @@ public class ShadowAdapterView extends ShadowViewGroup {
     }
 
     private void update() {
-        removeAllViews();
+        super.removeAllViews();
+        addViews();
+    }
 
+    protected void addViews() {
         Adapter adapter = getAdapter();
         if (adapter != null) {
             if (valid && previousItems.size() != adapter.getCount()) {
