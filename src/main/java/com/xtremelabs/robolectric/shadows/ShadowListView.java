@@ -15,7 +15,7 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @Implements(ListView.class)
-public class ShadowListView extends ShadowAdapterView {
+public class ShadowListView extends ShadowAbsListView {
     @RealObject private ListView realListView;
 
     private boolean itemsCanFocus;

@@ -101,6 +101,7 @@ public class Robolectric {
 
     public static List<Class<?>> getDefaultShadowClasses() {
         return Arrays.asList(
+                ShadowAbsListView.class,
                 ShadowAbsoluteLayout.class,
                 ShadowAbsSeekBar.class,
                 ShadowAbsSpinner.class,
@@ -235,6 +236,10 @@ public class Robolectric {
 
     public static <T> T directlyOn(T shadowedObject) {
         return RobolectricInternals.directlyOn(shadowedObject);
+    }
+
+    public static ShadowAbsListView shadowOf(AbsListView instance) {
+        return (ShadowAbsListView) shadowOf_(instance);
     }
 
     public static ShadowDrawable shadowOf(Drawable instance) {
