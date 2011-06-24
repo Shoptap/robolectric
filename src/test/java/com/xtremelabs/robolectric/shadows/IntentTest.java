@@ -116,6 +116,12 @@ public class IntentTest {
     }
 
     @Test
+    public void testSetClassThroughConstructor() throws Exception {
+        Intent intent = new Intent(new Activity(), getClass());
+        assertEquals(shadowOf(intent).getIntentClass(), getClass());
+    }
+
+    @Test
     public void shouldSetFlags() throws Exception {
         Intent intent = new Intent();
         intent.setFlags(1234);

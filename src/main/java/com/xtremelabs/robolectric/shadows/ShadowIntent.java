@@ -43,6 +43,7 @@ public class ShadowIntent {
 
     public void __constructor__(Context packageContext, Class cls) {
         componentName = new ComponentName(packageContext, cls);
+        intentClass = cls;
     }
 
     public void __constructor__(String action, Uri uri) {
