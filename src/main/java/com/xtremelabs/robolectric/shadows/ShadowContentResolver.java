@@ -13,6 +13,9 @@ import java.io.InputStream;
 @SuppressWarnings({"UnusedDeclaration"})
 @Implements(ContentResolver.class)
 public class ShadowContentResolver {
+    private Uri latestQueryUri;
+    private String[] latestQueryProjection;
+
     @Implementation
     public final InputStream openInputStream(final Uri uri) {
         return new InputStream() {
@@ -28,6 +31,16 @@ public class ShadowContentResolver {
 
     @Implementation
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        latestQueryUri = uri;
+        latestQueryProjection = projection;
         return new CursorWrapper(null);
+    }
+
+    public Uri getLatestQueryUri() {
+        return latestQueryUri;
+    }
+
+    public String[] getLatestQueryProjection() {
+        return latestQueryProjection;
     }
 }

@@ -4,10 +4,7 @@ import android.app.*;
 import android.appwidget.AppWidgetManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.Intent;
+import android.content.*;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -336,6 +333,10 @@ public class Robolectric {
 
     public static ShadowNfcAdapter shadowOf(NfcAdapter instance) {
         return (ShadowNfcAdapter) shadowOf_(instance);
+    }
+
+    public static ShadowContentResolver shadowOf(ContentResolver instance) {
+        return (ShadowContentResolver) shadowOf_(instance);
     }
 
     public static ShadowView shadowOf(View instance) {
