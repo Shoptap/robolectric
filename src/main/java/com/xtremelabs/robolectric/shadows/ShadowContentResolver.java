@@ -1,6 +1,8 @@
 package com.xtremelabs.robolectric.shadows;
 
 import android.content.ContentResolver;
+import android.database.Cursor;
+import android.database.CursorWrapper;
 import android.net.Uri;
 import com.xtremelabs.robolectric.internal.Implementation;
 import com.xtremelabs.robolectric.internal.Implements;
@@ -22,5 +24,10 @@ public class ShadowContentResolver {
                 return "stream for " + uri;
             }
         };
+    }
+
+    @Implementation
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        return new CursorWrapper(null);
     }
 }
