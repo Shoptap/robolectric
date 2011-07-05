@@ -83,6 +83,10 @@ public class AndroidTranslator implements Translator {
         boolean wantsToBeInstrumented =
                 className.startsWith("android.")
                         || className.startsWith("com.google.android.maps")
+                        /*
+                            SHOPTAP change, do not push to pivotal/robolectric!!
+                         */
+                        || className.equals("org.apache.http.entity.mime.MultipartEntity")
                         || className.equals("org.apache.http.impl.client.DefaultRequestDirector")
                         || ctClass.hasAnnotation(Instrument.class);
 
