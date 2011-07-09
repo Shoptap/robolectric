@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -66,10 +67,28 @@ public class IntentTest {
     }
 
     @Test
+    public void testParcelableArrayListExtra() {
+        Intent intent = new Intent();
+        Parcelable parcel1 = new TestParcelable();
+        Parcelable parcel2 = new TestParcelable();
+    	ArrayList<Parcelable> parcels = new ArrayList<Parcelable>();
+    	parcels.add(parcel1);
+    	parcels.add(parcel2);
+    	
+    	assertSame(intent, intent.putParcelableArrayListExtra("foo", parcels));
+    	assertSame(parcels, intent.getParcelableArrayListExtra("foo"));
+    	assertSame(parcel1, intent.getParcelableArrayListExtra("foo").get(0));
+    	assertSame(parcel2, intent.getParcelableArrayListExtra("foo").get(1));
+    	assertSame(parcels, intent.getExtras().getParcelableArrayList("foo"));
+    }
+    
+    @Test
     public void testLongExtra() throws Exception {
         Intent intent = new Intent();
         assertSame(intent, intent.putExtra("foo", 2L));
         assertEquals(2L, shadowOf(intent).getExtras().get("foo"));
+        assertEquals(2L, intent.getLongExtra("foo", -1));
+        assertEquals(-1L, intent.getLongExtra("bar", -1));
     }
 
     @Test
@@ -124,8 +143,9 @@ public class IntentTest {
     @Test
     public void shouldSetFlags() throws Exception {
         Intent intent = new Intent();
-        intent.setFlags(1234);
+        Intent self = intent.setFlags(1234);
         assertEquals(1234, intent.getFlags());
+        assertSame(self, intent);
     }
 
     @Test
@@ -171,7 +191,7 @@ public class IntentTest {
 
     @Test
     public void equals_whenOtherObjectIsNotAnIntent_shouldReturnFalse() throws Exception {
-        assertThat(new Intent(), not(equalTo(new Object())));
+        assertThat((Object) new Intent(), not(equalTo(new Object())));
     }
 
     @Test

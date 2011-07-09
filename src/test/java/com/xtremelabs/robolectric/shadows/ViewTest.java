@@ -3,13 +3,14 @@ package com.xtremelabs.robolectric.shadows;
 import android.app.Activity;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import com.xtremelabs.robolectric.R;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.WithTestDefaultsRunner;
+import com.xtremelabs.robolectric.util.TestAnimationListener;
 import com.xtremelabs.robolectric.util.TestOnClickListener;
 import com.xtremelabs.robolectric.util.TestRunnable;
 import com.xtremelabs.robolectric.util.Transcript;
@@ -25,8 +26,7 @@ import static org.junit.Assert.*;
 public class ViewTest {
     private View view;
 
-    @Before
-    public void setUp() throws Exception {
+    @Before public void setUp() throws Exception {
         view = new View(new Activity());
     }
 
@@ -131,6 +131,25 @@ public class ViewTest {
     }
 
     @Test
+    public void getBackground_shouldReturnNullIfNoBackgroundHasBeenSet() throws Exception {
+        assertThat(view.getBackground(), nullValue());
+    }
+
+    @Test
+    public void shouldSetBackgroundColor() {
+        view.setBackgroundColor(R.color.android_red);
+        int intColor = view.getResources().getColor(R.color.android_red);
+
+        assertThat((ColorDrawable) view.getBackground(), equalTo(new ColorDrawable(intColor)));
+    }
+
+    @Test
+    public void shouldSetBackgroundResource() throws Exception {
+        view.setBackgroundResource(R.drawable.an_image);
+        assertThat(view.getBackground(), equalTo(view.getResources().getDrawable(R.drawable.an_image)));
+    }
+
+    @Test
     public void shouldRecordBackgroundColor() {
         int[] colors = {0, 1, 727};
 
@@ -153,6 +172,18 @@ public class ViewTest {
     }
 
     @Test
+    public void shouldPostInvalidateDelayed() throws Exception {
+        Robolectric.pauseMainLooper();
+
+        view.postInvalidateDelayed(100);
+        ShadowView shadowView = shadowOf(view);
+        assertFalse(shadowView.wasInvalidated());
+
+        Robolectric.unPauseMainLooper();
+        assertTrue(shadowView.wasInvalidated());
+    }
+
+    @Test
     public void shouldPostActionsToTheMessageQueueWithDelay() throws Exception {
         Robolectric.pauseMainLooper();
 
@@ -170,27 +201,37 @@ public class ViewTest {
         new View(null, null);
         new View(null, null, 0);
     }
+    
+    @Test
+    public void shouldSetAnimation() throws Exception {
+    	Animation anim = new TestAnimation();
+    	view.setAnimation(anim);
+    	assertThat(view.getAnimation(), sameInstance(anim));
+    }
+        
+    @Test
+    public void shouldStartAndClearAnimation() throws Exception {
+    	Animation anim = new TestAnimation();
+    	TestAnimationListener listener = new TestAnimationListener();
+    	anim.setAnimationListener(listener);
+    	assertThat(listener.wasStartCalled, equalTo(false));
+    	assertThat(listener.wasRepeatCalled, equalTo(false));
+    	assertThat(listener.wasEndCalled, equalTo(false));
+    	view.startAnimation(anim);
+    	assertThat(listener.wasStartCalled, equalTo(true));
+    	assertThat(listener.wasRepeatCalled, equalTo(false));
+    	assertThat(listener.wasEndCalled, equalTo(false));
+    	view.clearAnimation();
+    	assertThat(listener.wasStartCalled, equalTo(true));	
+    	assertThat(listener.wasRepeatCalled, equalTo(false));
+    	assertThat(listener.wasEndCalled, equalTo(true));	
+    }
 
     @Test
     public void scrollTo_shouldStoreTheScrolledCoordinates() throws Exception {
         view.scrollTo(1, 2);
         assertThat(shadowOf(view).scrollToCoordinates, equalTo(new Point(1, 2)));
     }
-
-    @Test
-    public void getBackground_shouldReturnNullIfNoBackgroundHasBeenSet() throws Exception {
-        assertThat(view.getBackground(), nullValue());
-    }
-
-    @Test
-    public void getBackground_whenSetFromAResourceId_shouldReturnADrawable() throws Exception {
-        view.setBackgroundResource(R.drawable.an_image);
-        assertThat(view.getBackground(), instanceOf(Drawable.class));
-    }
-
-    @Test
-    public void getBackground_whenSetFromAColor_shouldReturnAColorDrawable() throws Exception {
-        view.setBackgroundColor(R.color.black);
-        assertThat(view.getBackground(), instanceOf(ColorDrawable.class));
-    }
+    
+	private class TestAnimation extends Animation { }
 }

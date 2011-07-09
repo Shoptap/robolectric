@@ -1,6 +1,14 @@
 package com.xtremelabs.robolectric.shadows;
 
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -10,17 +18,21 @@ import com.xtremelabs.robolectric.internal.Implements;
 import com.xtremelabs.robolectric.internal.RealObject;
 import com.xtremelabs.robolectric.tester.android.content.TestSharedPreferences;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @Implements(ContextWrapper.class)
 public class ShadowContextWrapper extends ShadowContext {
     @RealObject private ContextWrapper realContextWrapper;
-    private Context baseContext;
+    protected Context baseContext;
 
     private PackageManager packageManager;
 
     private String packageName;
+    private ArrayList<Intent> broadcastIntents = new ArrayList<Intent>();
 
     public void __constructor__(Context baseContext) {
         this.baseContext = baseContext;
@@ -54,6 +66,11 @@ public class ShadowContextWrapper extends ShadowContext {
     @Implementation
     public void sendBroadcast(Intent intent) {
         getApplicationContext().sendBroadcast(intent);
+        broadcastIntents.add(intent);
+    }
+
+    public List<Intent> getBroadcastIntents() {
+        return broadcastIntents;
     }
 
     @Implementation
@@ -164,8 +181,22 @@ public class ShadowContextWrapper extends ShadowContext {
         return getShadowApplication().getMainLooper();
     }
 
+    @Implementation
+    public Context getBaseContext() {
+    	return baseContext;
+    }
+    
+    @Implementation
+    public void attachBaseContext(Context context) {
+    	baseContext = context;
+    }
+    
     private ShadowApplication getShadowApplication() {
         return ((ShadowApplication) shadowOf(getApplicationContext()));
     }
 
+    @Implementation
+    public boolean bindService(Intent intent, final ServiceConnection serviceConnection, int i) {
+        return getShadowApplication().bindService(intent, serviceConnection, i);
+    }
 }

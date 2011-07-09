@@ -2,6 +2,7 @@ package com.xtremelabs.robolectric.shadows;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -20,6 +21,13 @@ public class ShadowWebView extends ShadowAbsoluteLayout {
     private WebSettings webSettings = Robolectric.newInstanceOf(WebSettings.class);
     private WebViewClient webViewClient = null;
     private boolean runFlag = false;
+    private boolean clearCacheCalled = false;
+    private boolean clearCacheIncludeDiskFiles = false;
+    private boolean clearFormDataCalled = false;
+    private boolean clearHistoryCalled = false;
+    private boolean clearViewCalled = false;
+    private boolean destroyCalled = false;
+    private WebChromeClient webChromeClient;
 
     @Override public void __constructor__(Context context, AttributeSet attributeSet) {
         super.__constructor__(context, attributeSet);
@@ -49,6 +57,11 @@ public class ShadowWebView extends ShadowAbsoluteLayout {
         webViewClient = client;
     }
 
+    @Implementation
+    public void setWebChromeClient(WebChromeClient client) {
+        webChromeClient = client;
+    }
+
     public WebViewClient getWebViewClient() {
         return webViewClient;
     }
@@ -63,6 +76,56 @@ public class ShadowWebView extends ShadowAbsoluteLayout {
     }
     
     @Implementation
+    public void clearCache(boolean includeDiskFiles) {
+    	clearCacheCalled = true;
+    	clearCacheIncludeDiskFiles = includeDiskFiles;
+    }
+    
+    public boolean wasClearCacheCalled() {
+    	return clearCacheCalled;
+    }
+    
+    public boolean didClearCacheIncludeDiskFiles() {
+    	return clearCacheIncludeDiskFiles;
+    }
+    
+    @Implementation
+    public void clearFormData() {
+    	clearFormDataCalled = true;
+    }
+    
+    public boolean wasClearFormDataCalled() {
+    	return clearFormDataCalled;
+    }
+    
+    @Implementation
+    public void clearHistory() {
+    	clearHistoryCalled = true;
+    }
+    
+    public boolean wasClearHistoryCalled() {
+    	return clearHistoryCalled;
+    }
+ 
+    @Implementation
+    public void clearView() {
+    	clearViewCalled = true;
+    }
+    
+    public boolean wasClearViewCalled() {
+    	return clearViewCalled;
+    }  
+    
+    @Implementation
+    public void destroy() {
+    	destroyCalled = true;
+    }
+    
+    public boolean wasDestroyCalled() {
+    	return destroyCalled;
+    }  
+    
+   @Implementation
     public void post(Runnable action) {
     	action.run();
     	runFlag = true;
@@ -70,5 +133,9 @@ public class ShadowWebView extends ShadowAbsoluteLayout {
     
     public boolean getRunFlag() {
     	return runFlag;
+    }
+
+    public WebChromeClient getWebChromeClient() {
+        return webChromeClient;
     }
 }

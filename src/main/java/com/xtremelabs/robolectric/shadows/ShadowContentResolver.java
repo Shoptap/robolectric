@@ -1,6 +1,7 @@
 package com.xtremelabs.robolectric.shadows;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.net.Uri;
@@ -13,6 +14,7 @@ import java.io.InputStream;
 @SuppressWarnings({"UnusedDeclaration"})
 @Implements(ContentResolver.class)
 public class ShadowContentResolver {
+    private Cursor cursor = new CursorWrapper(null);
     private Uri latestQueryUri;
     private String[] latestQueryProjection;
 
@@ -30,12 +32,22 @@ public class ShadowContentResolver {
     }
 
     @Implementation
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        latestQueryUri = uri;
-        latestQueryProjection = projection;
-        return new CursorWrapper(null);
+    public final Uri insert(Uri url, ContentValues values) {
+        return Uri.parse("content://foobar");
     }
 
+    @Implementation
+    public final Cursor query(Uri uri, String[] projection,
+            String selection, String[] selectionArgs, String sortOrder) {
+        latestQueryUri = uri;
+        latestQueryProjection = projection;
+        return cursor;
+    }
+
+    public void setCursor(Cursor cursor) {
+        this.cursor = cursor;
+    }
+    
     public Uri getLatestQueryUri() {
         return latestQueryUri;
     }

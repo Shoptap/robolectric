@@ -17,11 +17,14 @@ import java.util.List;
 public class ShadowAdapterView extends ShadowViewGroup {
     @RealObject private AdapterView realAdapterView;
 
-    Adapter adapter;
+    private Adapter adapter;
+	private View mEmptyView;
     private AdapterView.OnItemSelectedListener onItemSelectedListener;
     private AdapterView.OnItemClickListener onItemClickListener;
     private boolean valid = false;
+    private static int ignoreRowsAtEndOfList = 0;
     private int selectedPosition;
+    private int itemCount = 0;
 
     private List<Object> previousItems = new ArrayList<Object>();
 
@@ -36,9 +39,33 @@ public class ShadowAdapterView extends ShadowViewGroup {
         invalidateAndScheduleUpdate();
         setSelection(0);
     }
+    
+    @Implementation
+    public void setEmptyView(View emptyView) {
+		this.mEmptyView = emptyView;
+		updateEmptyStatus(adapter == null || adapter.isEmpty());
+    }
+
+    @Implementation
+    public int getPositionForView(android.view.View view) {
+        while(view.getParent() != null && view.getParent() != realView) {
+            view = (View) view.getParent();
+        }
+
+        for (int i = 0; i < getChildCount(); i++) {
+            if (view == getChildAt(i)) {
+                return i;
+            }
+        }
+
+        return AdapterView.INVALID_POSITION;
+    }
 
     private void invalidateAndScheduleUpdate() {
         valid = false;
+        itemCount = adapter == null ? 0 : adapter.getCount();
+        updateEmptyStatus(itemCount == 0);
+        
         new Handler().post(new Runnable() {
             @Override
             public void run() {
@@ -48,6 +75,36 @@ public class ShadowAdapterView extends ShadowViewGroup {
                 }
             }
         });
+    }
+    
+    private void updateEmptyStatus(boolean empty) {
+    	// code taken from the real AdapterView and commented out where not (yet?) applicable
+    	
+    	// we don't deal with filterMode yet...
+//        if (isInFilterMode()) {
+//            empty = false;
+//        }
+
+        if (empty) {
+            if (mEmptyView != null) {
+                mEmptyView.setVisibility(View.VISIBLE);
+                setVisibility(View.GONE);
+            } else {
+                // If the caller just removed our empty view, make sure the list view is visible
+                setVisibility(View.VISIBLE);
+            }
+
+            // leave layout for the moment...
+//            // We are now GONE, so pending layouts will not be dispatched.
+//            // Force one here to make sure that the state of the list matches
+//            // the state of the adapter.
+//            if (mDataChanged) {
+//                this.onLayout(false, mLeft, mTop, mRight, mBottom);
+//            }
+        } else {
+            if (mEmptyView != null) mEmptyView.setVisibility(View.GONE);
+            setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -59,6 +116,18 @@ public class ShadowAdapterView extends ShadowViewGroup {
     public boolean checkValidity() {
         update();
         return valid;
+    }
+
+    /**
+     * Set to avoid calling getView() on the last row(s) during validation. Useful if you are using a special
+     * last row, e.g. one that goes and fetches more list data as soon as it comes into view. This sets a static
+     * on the class, so be sure to call it again and set it back to 0 at the end of your test.
+     *
+     * @param countOfRows The number of rows to ignore at the end of the list.
+     * @see com.xtremelabs.robolectric.shadows.ShadowAdapterView#checkValidity()
+     */
+    public static void ignoreRowsAtEndOfListDuringValidation(int countOfRows) {
+        ignoreRowsAtEndOfList = countOfRows;
     }
 
     /**
@@ -84,7 +153,7 @@ public class ShadowAdapterView extends ShadowViewGroup {
 
     @Implementation
     public int getCount() {
-        return adapter.getCount();
+        return itemCount;
     }
 
     @Implementation
@@ -140,6 +209,11 @@ public class ShadowAdapterView extends ShadowViewGroup {
         }
         return false;
     }
+    
+    @Implementation
+    public View getEmptyView() {
+    	return mEmptyView;
+    }
 
     private void update() {
         super.removeAllViews();
@@ -149,12 +223,12 @@ public class ShadowAdapterView extends ShadowViewGroup {
     protected void addViews() {
         Adapter adapter = getAdapter();
         if (adapter != null) {
-            if (valid && previousItems.size() != adapter.getCount()) {
+            if (valid && (previousItems.size() - ignoreRowsAtEndOfList != adapter.getCount() - ignoreRowsAtEndOfList)) {
                 throw new ArrayIndexOutOfBoundsException("view is valid but adapter.getCount() has changed from " + previousItems.size() + " to " + adapter.getCount());
             }
 
             List<Object> newItems = new ArrayList<Object>();
-            for (int i = 0; i < adapter.getCount(); i++) {
+            for (int i = 0; i < adapter.getCount() - ignoreRowsAtEndOfList; i++) {
                 newItems.add(adapter.getItem(i));
                 addView(adapter.getView(i, null, realAdapterView));
             }

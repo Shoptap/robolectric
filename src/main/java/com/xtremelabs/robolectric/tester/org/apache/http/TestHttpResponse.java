@@ -16,18 +16,28 @@ public class TestHttpResponse extends HttpResponseStub {
 
     private int statusCode;
     private String responseBody;
-    private Header contentType;
     private TestStatusLine statusLine = new TestStatusLine();
     private TestHttpEntity httpEntity = new TestHttpEntity();
+    private int openEntityContentStreamCount = 0;
+    private Header[] headers;
+
+    public TestHttpResponse() {
+        this.statusCode = 200;
+        this.responseBody = "";
+    }
 
     public TestHttpResponse(int statusCode, String responseBody) {
         this.statusCode = statusCode;
         this.responseBody = responseBody;
     }
 
-    public TestHttpResponse(int statusCode, String responseBody, Header contentType) {
+    public TestHttpResponse(int statusCode, String responseBody, Header[] headers) {
         this(statusCode, responseBody);
-        this.contentType = contentType;
+        this.headers = headers;
+    }
+
+    protected void setResponseBody(String responseBody) {
+        this.responseBody = responseBody;
     }
 
     @Override public StatusLine getStatusLine() {
@@ -38,13 +48,30 @@ public class TestHttpResponse extends HttpResponseStub {
         return httpEntity;
     }
 
+    @Override public Header[] getAllHeaders() {
+        return headers;
+    }
+
+    public boolean entityContentStreamsHaveBeenClosed() {
+        return openEntityContentStreamCount == 0;
+    }
+    
     public class TestHttpEntity extends HttpEntityStub {
+
+        private ByteArrayInputStream inputStream;
+
         @Override public long getContentLength() {
             return responseBody.length();
         }
         
         @Override public Header getContentType() {
-            return contentType;
+            for (int i = 0; i < headers.length; i++) {
+                Header header = headers[i];
+                if (header.getName().equals("Content-Type")) {
+                    return header;
+                }
+            }
+            return null;
         }
         
         @Override public boolean isStreaming() {
@@ -56,7 +83,15 @@ public class TestHttpResponse extends HttpResponseStub {
         }
 
         @Override public InputStream getContent() throws IOException, IllegalStateException {
-            return new ByteArrayInputStream(responseBody.getBytes());
+            openEntityContentStreamCount++;
+            inputStream = new ByteArrayInputStream(responseBody.getBytes()) {
+                @Override
+                public void close() throws IOException {
+                    openEntityContentStreamCount--;
+                    super.close();
+                }
+            };
+            return inputStream;
         }
 
         @Override public void writeTo(OutputStream outputStream) throws IOException {

@@ -36,7 +36,9 @@ public class ShadowDialog {
     private DialogInterface.OnCancelListener onCancelListener;
     private Window window;
     private Activity ownerActivity;
-
+    private boolean isCancelable;
+    private boolean hasShownBefore;
+    
     public static void reset() {
         setLatestDialog(null);
     }
@@ -91,12 +93,19 @@ public class ShadowDialog {
     }
 
     @Implementation
+    public void onBackPressed() {
+        cancel();
+    }
+
+    @Implementation
     public void show() {
         isShowing = true;
         try {
-            Method onCreateMethod = Dialog.class.getDeclaredMethod("onCreate", Bundle.class);
-            onCreateMethod.setAccessible(true);
-            onCreateMethod.invoke(realDialog, (Bundle) null);
+            if (!hasShownBefore) {
+                Method onCreateMethod = Dialog.class.getDeclaredMethod("onCreate", Bundle.class);
+                onCreateMethod.setAccessible(true);
+                onCreateMethod.invoke(realDialog, (Bundle) null);
+            }                
 
             Method onStartMethod = Dialog.class.getDeclaredMethod("onStart");
             onStartMethod.setAccessible(true);
@@ -104,6 +113,7 @@ public class ShadowDialog {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        hasShownBefore = true;
     }
 
     @Implementation
@@ -144,6 +154,15 @@ public class ShadowDialog {
     @Implementation
     public void setOnDismissListener(DialogInterface.OnDismissListener onDismissListener) {
         this.onDismissListener = onDismissListener;
+    }
+    
+    @Implementation
+    public void setCancelable(boolean flag) {
+    	isCancelable = flag;
+    }
+    
+    public boolean isCancelable() {
+    	return isCancelable;
     }
 
     @Implementation

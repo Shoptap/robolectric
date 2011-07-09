@@ -16,7 +16,7 @@ import java.util.List;
 public class ShadowIntentFilter {
     List<String> actions = new ArrayList<String>();
     List<String> schemes = new ArrayList<String>();
-    ArrayList<IntentFilter.AuthorityEntry> authoritites = new ArrayList<IntentFilter.AuthorityEntry>();
+    List<IntentFilter.AuthorityEntry> authoritites = new ArrayList<IntentFilter.AuthorityEntry>();
 
     public void __constructor__(String action) {
         actions.add(action);

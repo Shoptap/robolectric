@@ -2,6 +2,7 @@ package com.xtremelabs.robolectric.shadows;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.os.Bundle;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.WithTestDefaultsRunner;
 import com.xtremelabs.robolectric.util.Transcript;
@@ -10,12 +11,13 @@ import org.junit.runner.RunWith;
 
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 @RunWith(WithTestDefaultsRunner.class)
 public class DialogTest {
-    @Test
+	@Test
     public void shouldCallOnDismissListener() throws Exception {
         final Transcript transcript = new Transcript();
 
@@ -47,6 +49,40 @@ public class DialogTest {
         assertTrue(dialog.onStartCalled);
     }
 
+    @Test
+    public void shouldSetCancelable() {
+        Dialog dialog = new Dialog(null);
+        ShadowDialog shadow = Robolectric.shadowOf(dialog);
+
+        assertThat(shadow.isCancelable(), equalTo(false));
+
+        dialog.setCancelable(true);
+        assertThat(shadow.isCancelable(), equalTo(true));
+
+        dialog.setCancelable(false);
+        assertThat(shadow.isCancelable(), equalTo(false));
+    }
+
+    @Test
+    public void shouldOnlyCallOnCreateOnce() {
+        final Transcript transcript = new Transcript();
+
+        Dialog dialog = new Dialog(Robolectric.application) {
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                transcript.add("onCreate called");
+            }
+        };
+
+        dialog.show();
+        transcript.assertEventsSoFar("onCreate called");
+
+        dialog.dismiss();
+        dialog.show();
+        transcript.assertNoEventsSoFar();
+    }
+    
     private static class TestOnStartDialog extends Dialog {
         boolean onStartCalled = false;
 

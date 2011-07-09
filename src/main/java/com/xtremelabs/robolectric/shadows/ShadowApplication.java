@@ -2,13 +2,10 @@ package com.xtremelabs.robolectric.shadows;
 
 import android.app.Application;
 import android.appwidget.AppWidgetManager;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.*;
 import android.content.res.Resources;
+import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.widget.Toast;
@@ -20,12 +17,7 @@ import com.xtremelabs.robolectric.res.ResourceLoader;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import com.xtremelabs.robolectric.util.Scheduler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
@@ -70,6 +62,7 @@ public class ShadowApplication extends ShadowContextWrapper {
     private Map<String, Object> systemServices = new HashMap<String, Object>();
     private List<Intent> startedActivities = new ArrayList<Intent>();
     private List<Intent> startedServices = new ArrayList<Intent>();
+    private List<ServiceConnection> unboundServiceConnections = new ArrayList<ServiceConnection>();
     private List<Wrapper> registeredReceivers = new ArrayList<Wrapper>();
     private FakeHttpLayer fakeHttpLayer = new FakeHttpLayer();
     private final Looper mainLooper = newInstanceOf(Looper.class);
@@ -80,10 +73,15 @@ public class ShadowApplication extends ShadowContextWrapper {
     private ShadowAlertDialog latestAlertDialog;
     private ShadowDialog latestDialog;
     private Object bluetoothAdapter = Robolectric.newInstanceOf("android.bluetooth.BluetoothAdapter");
+    private Resources resources;
 
     // these are managed by the AppSingletonizier... kinda gross, sorry [xw]
     LayoutInflater layoutInflater;
     AppWidgetManager appWidgetManager;
+    private ServiceConnection serviceConnection;
+    private ComponentName componentNameForBindService;
+    private IBinder serviceForBindService;
+    private List<String> unbindableActions = new ArrayList<String>();
 
     /**
      * Associates a {@code ResourceLoader} with an {@code Application} instance
@@ -115,7 +113,10 @@ public class ShadowApplication extends ShadowContextWrapper {
 
     @Override @Implementation
     public Resources getResources() {
-        return ShadowResources.bind(new Resources(null, null, null), resourceLoader);
+        if (resources == null) {
+            resources = ShadowResources.bind(new Resources(null, null, null), resourceLoader);
+        }
+        return resources;
     }
 
     @Implementation
@@ -159,6 +160,40 @@ public class ShadowApplication extends ShadowContextWrapper {
         return new ComponentName("some.service.package", "SomeServiceName-FIXME");
     }
 
+    public void setComponentNameAndServiceForBindService(ComponentName name, IBinder service) {
+        this.componentNameForBindService = name;
+        this.serviceForBindService = service;
+    }
+
+    @Implementation
+    public boolean bindService(Intent intent, final ServiceConnection serviceConnection, int i) {
+        if (unbindableActions.contains(intent.getAction())) {
+            return false;
+        }
+        startedServices.add(intent);
+        shadowOf(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                serviceConnection.onServiceConnected(componentNameForBindService, serviceForBindService);
+            }
+        }, 0);
+        return true;
+    }
+
+    @Implementation
+    public void unbindService(final ServiceConnection serviceConnection) {
+        unboundServiceConnections.add(serviceConnection);
+        shadowOf(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                serviceConnection.onServiceDisconnected(componentNameForBindService);
+            }
+        }, 0);
+    }
+
+    public List<ServiceConnection> getUnboundServiceConnections() {
+        return unboundServiceConnections;
+    }
     /**
      * Consumes the most recent {@code Intent} started by {@link #startActivity(android.content.Intent)} and returns it.
      *
@@ -329,6 +364,10 @@ public class ShadowApplication extends ShadowContextWrapper {
         return currentLooper;
     }
 
+    public void setCurrentLooper(Looper looper) {
+        currentLooper = looper;
+    }
+
     public Map<String, Hashtable<String, Object>> getSharedPreferenceMap() {
         return sharedPreferenceMap;
     }
@@ -353,10 +392,14 @@ public class ShadowApplication extends ShadowContextWrapper {
         return bluetoothAdapter;
     }
 
+    public void declareActionUnbindable(String action) {
+        unbindableActions.add(action);
+    }
+
     public class Wrapper {
-        private BroadcastReceiver broadcastReceiver;
-        private IntentFilter intentFilter;
-        private Context context;
+        public BroadcastReceiver broadcastReceiver;
+        public IntentFilter intentFilter;
+        public Context context;
         public Throwable exception;
 
         public Wrapper(BroadcastReceiver broadcastReceiver, IntentFilter intentFilter, Context context) {
@@ -364,6 +407,18 @@ public class ShadowApplication extends ShadowContextWrapper {
             this.intentFilter = intentFilter;
             this.context = context;
             exception = new Throwable();
+        }
+
+        public BroadcastReceiver getBroadcastReceiver() {
+            return broadcastReceiver;
+        }
+
+        public IntentFilter getIntentFilter() {
+            return intentFilter;
+        }
+
+        public Context getContext() {
+            return context;
         }
     }
 }
