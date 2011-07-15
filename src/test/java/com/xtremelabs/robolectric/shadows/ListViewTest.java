@@ -19,6 +19,7 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(WithTestDefaultsRunner.class)
@@ -262,6 +263,11 @@ public class ListViewTest {
     public void getPositionForView_shouldReturnInvalidPostionForViewThatIsNotFound() throws Exception {
         prepareWithListAdapter();
         assertThat(listView.getPositionForView(new View(null)), equalTo(AdapterView.INVALID_POSITION));
+    }
+
+    @Test
+    public void getLayoutParams_shouldReturnTheCorrectLayoutParamsObject() throws Exception {
+        assertTrue(listView.getLayoutParams() instanceof LinearLayout.LayoutParams);
     }
 
     private ListAdapter prepareWithListAdapter() {

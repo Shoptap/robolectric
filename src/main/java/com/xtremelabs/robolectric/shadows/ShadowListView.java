@@ -2,6 +2,7 @@ package com.xtremelabs.robolectric.shadows;
 
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import com.xtremelabs.robolectric.internal.Implementation;
@@ -21,6 +22,10 @@ public class ShadowListView extends ShadowAbsListView {
     private boolean itemsCanFocus;
     private List<View> headerViews = new ArrayList<View>();
     private List<View> footerViews = new ArrayList<View>();
+
+    public ShadowListView() {
+        layoutParams = new LinearLayout.LayoutParams(0, 0);
+    }
 
     @Implementation
     @Override

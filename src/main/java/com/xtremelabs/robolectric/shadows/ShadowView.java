@@ -53,7 +53,7 @@ public class ShadowView {
     private int paddingTop;
     private int paddingRight;
     private int paddingBottom;
-    private ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(0, 0);
+    protected ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(0, 0);
     private Map<Integer, Object> tags = new HashMap<Integer, Object>();
     private boolean clickable;
     protected boolean focusable;
