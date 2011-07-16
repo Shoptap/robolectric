@@ -323,6 +323,11 @@ public class ShadowView {
     }
 
     @Implementation
+    public final int getMeasuredHeight() {
+        return getHeight();
+    }
+
+    @Implementation
     public final int getMeasuredWidth() {
         return getWidth();
     }
