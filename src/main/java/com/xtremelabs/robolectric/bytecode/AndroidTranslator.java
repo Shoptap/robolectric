@@ -46,6 +46,7 @@ public class AndroidTranslator implements Translator {
             SHOPTAP change, do not push to pivotal/robolectric!!
          */
         instrumentingList.add("org.apache.http.entity.mime.MultipartEntity");
+        instrumentingList.add("com.shoptap.views.BetterLinearLayout");
     }
     
     public AndroidTranslator(ClassHandler classHandler, ClassCache classCache, ArrayList<String> customShadowClassNames) {
