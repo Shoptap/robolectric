@@ -47,6 +47,22 @@ public class ViewTest {
     }
 
     @Test
+    public void layout_shouldUpdateTheLayoutParamsWithHeightAndWidth() throws Exception {
+        view.layout(100, 200, 150, 300);
+
+        assertThat(view.getLayoutParams().width, equalTo(50));
+        assertThat(view.getLayoutParams().height, equalTo(100));
+    }
+
+    @Test
+    public void setLayoutParams_shouldAffectHeightAndWidth() throws Exception {
+        view.setLayoutParams(new ViewGroup.LayoutParams(50, 100));
+
+        assertThat(view.getWidth(), equalTo(50));
+        assertThat(view.getHeight(), equalTo(100));
+    }
+
+    @Test
     public void shouldFocus() throws Exception {
         final Transcript transcript = new Transcript();
 

@@ -314,12 +314,12 @@ public class ShadowView {
 
     @Implementation
     public final int getHeight() {
-        return bottom - top;
+        return layoutParams.height;
     }
 
     @Implementation
     public final int getWidth() {
-        return right - left;
+        return layoutParams.width;
     }
 
     @Implementation
@@ -338,6 +338,9 @@ public class ShadowView {
         top = t;
         right = r;
         bottom = b;
+
+        layoutParams.height = b - t;
+        layoutParams.width = r - l;
 
 // todo:       realView.onLayout();
     }
