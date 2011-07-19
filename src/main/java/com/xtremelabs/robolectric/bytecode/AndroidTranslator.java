@@ -3,18 +3,7 @@ package com.xtremelabs.robolectric.bytecode;
 import android.net.Uri;
 import com.xtremelabs.robolectric.internal.DoNotInstrument;
 import com.xtremelabs.robolectric.internal.Instrument;
-import javassist.CannotCompileException;
-import javassist.ClassMap;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.CtNewConstructor;
-import javassist.CtNewMethod;
-import javassist.Modifier;
-import javassist.NotFoundException;
-import javassist.Translator;
+import javassist.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,7 +35,7 @@ public class AndroidTranslator implements Translator {
             SHOPTAP change, do not push to pivotal/robolectric!!
          */
         instrumentingList.add("org.apache.http.entity.mime.MultipartEntity");
-        instrumentingList.add("com.shoptap.views.BetterLinearLayout");
+        instrumentingList.add("com.shoptap.views.");
     }
     
     public AndroidTranslator(ClassHandler classHandler, ClassCache classCache, ArrayList<String> customShadowClassNames) {
