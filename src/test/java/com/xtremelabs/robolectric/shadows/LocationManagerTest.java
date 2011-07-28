@@ -1,17 +1,15 @@
 package com.xtremelabs.robolectric.shadows;
 
+import android.content.Context;
+import android.location.GpsStatus.Listener;
+import android.location.Location;
+import android.location.LocationManager;
+import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.WithTestDefaultsRunner;
 import junit.framework.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.content.Context;
-import android.location.LocationManager;
-import android.location.GpsStatus.Listener;
-
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.WithTestDefaultsRunner;
 
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
@@ -58,6 +56,15 @@ public class LocationManagerTest {
 		
 		Assert.assertFalse(shadowLocationManager.hasListener(listener));
 	}
+
+    @Test
+    public void getLastKnownLocation_shouldReturnSimulatedLocation() {
+        Location simulatedLocation = new Location(LocationManager.NETWORK_PROVIDER);
+        shadowOf(locationManager).simulateLocation(simulatedLocation);
+
+        Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        Assert.assertSame(simulatedLocation, lastKnownLocation);
+    }
 	
 	private Listener addListenerToLocationManager() {
 		Listener listener = new TestListener();

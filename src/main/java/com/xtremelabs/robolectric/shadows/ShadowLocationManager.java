@@ -1,8 +1,8 @@
 package com.xtremelabs.robolectric.shadows;
 
-import android.location.LocationManager;
 import android.location.GpsStatus.Listener;
-
+import android.location.Location;
+import android.location.LocationManager;
 import com.xtremelabs.robolectric.internal.Implementation;
 import com.xtremelabs.robolectric.internal.Implements;
 
@@ -19,9 +19,10 @@ import java.util.Map;
 @Implements(LocationManager.class)
 public class ShadowLocationManager {
     private final Map<String, Boolean> providersEnabled = new HashMap<String, Boolean>();
-    
     private final ArrayList<Listener> listeners = new ArrayList<Listener>();
-    
+
+    private Location simulatedLocation;
+
     @Implementation
     public boolean isProviderEnabled(String provider) {
         Boolean isEnabled = providersEnabled.get(provider);
@@ -36,6 +37,11 @@ public class ShadowLocationManager {
      */
     public void setProviderEnabled(String provider, boolean isEnabled) {
         providersEnabled.put(provider, isEnabled);
+    }
+
+    @Implementation
+    public Location getLastKnownLocation(String provider) {
+        return simulatedLocation;
     }
     	
 	@Implementation
@@ -55,4 +61,8 @@ public class ShadowLocationManager {
 	public boolean hasListener(Listener listener) {
 		return listeners.contains(listener);
 	}
+
+    public void simulateLocation(Location location) {
+        this.simulatedLocation = location;
+    }
 }
