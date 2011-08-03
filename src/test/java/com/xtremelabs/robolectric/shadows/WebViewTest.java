@@ -127,4 +127,10 @@ public class WebViewTest {
         webView.destroy();
         assertThat(shadowWebView.wasDestroyCalled(), equalTo(true));
     }
+
+    @Test
+    public void shouldRecordLoadData() throws Exception {
+        webView.loadData("<a>test link</a>", "text/html", "UTF-8");
+        assertThat(shadowWebView.getLastLoadedUrl(), equalTo("data:text/html;UTF-8,<a>test link</a>"));
+    }
 }

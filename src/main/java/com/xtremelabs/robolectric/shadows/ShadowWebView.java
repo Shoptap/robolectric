@@ -135,6 +135,11 @@ public class ShadowWebView extends ShadowAbsoluteLayout {
     	return runFlag;
     }
 
+    @Implementation
+    public void loadData(String data, String mimeType, String encoding) {
+        loadUrl("data:" + mimeType + ";" + encoding + "," + data);
+    }
+
     public WebChromeClient getWebChromeClient() {
         return webChromeClient;
     }
