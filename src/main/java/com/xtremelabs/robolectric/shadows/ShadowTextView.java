@@ -39,6 +39,7 @@ public class ShadowTextView extends ShadowView {
     public void applyAttributes() {
         super.applyAttributes();
         applyTextAttribute();
+        applyAutoLinkMaskAttribute();
         applyTextColorAttribute();
         applyCompoundDrawablesWithIntrinsicBoundsAttributes();
     }
@@ -129,6 +130,12 @@ public class ShadowTextView extends ShadowView {
 
         autoLinkPhoneNumbers = (mask & Linkify.PHONE_NUMBERS) != 0;
     }
+
+    @Implementation
+    public final int getAutoLinkMask() {
+        return autoLinkMask;
+    }
+
 
     @Implementation
     public void setCompoundDrawablesWithIntrinsicBounds(int left, int top, int right, int bottom) {
@@ -252,6 +259,28 @@ public class ShadowTextView extends ShadowView {
                 text = context.getResources().getString(textResId);
             }
             setText(text);
+        }
+    }
+
+    private void applyAutoLinkMaskAttribute() {
+        String linkMaskValue = attributeSet.getAttributeValue("android", "autoLink");
+        if (linkMaskValue != null) {
+            int linkMask = 0;
+            String[] linkMaskValues = linkMaskValue.split("[|]");
+            for (String maskValue : linkMaskValues) {
+                if (maskValue.equals("web")) {
+                    linkMask |= Linkify.WEB_URLS;
+                } else if (maskValue.equals("email")) {
+                    linkMask |= Linkify.EMAIL_ADDRESSES;
+                } else if (maskValue.equals("phone")) {
+                    linkMask |= Linkify.PHONE_NUMBERS;
+                } else if (maskValue.equals("map")) {
+                    linkMask |= Linkify.MAP_ADDRESSES;
+                } else if (maskValue.equals("all")) {
+                    linkMask |= Linkify.ALL;
+                }
+            }
+            setAutoLinkMask(linkMask);
         }
     }
 

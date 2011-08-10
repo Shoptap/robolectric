@@ -2,17 +2,12 @@ package com.xtremelabs.robolectric.res;
 
 import android.app.Activity;
 import android.content.Context;
-import android.view.View;
-import android.widget.Button;
 import android.os.Bundle;
+import android.text.util.Linkify;
+import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.*;
 import com.google.android.maps.MapView;
 import com.xtremelabs.robolectric.R;
 import com.xtremelabs.robolectric.Robolectric;
@@ -29,9 +24,7 @@ import org.junit.runner.RunWith;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static com.xtremelabs.robolectric.util.TestUtil.assertInstanceOf;
 import static com.xtremelabs.robolectric.util.TestUtil.resourceFile;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 @RunWith(WithTestDefaultsRunner.class)
@@ -201,6 +194,13 @@ public class ViewLoaderTest {
         assertThat(shadowTextView.getCompoundDrawablesImpl().right, equalTo(R.drawable.an_other_image));
         assertThat(shadowTextView.getCompoundDrawablesImpl().bottom, equalTo(R.drawable.third_image));
         assertThat(shadowTextView.getCompoundDrawablesImpl().left, equalTo(R.drawable.fourth_image));
+    }
+
+    @Test
+    public void testTextViewAutoLinkMaskIsSet() throws Exception {
+        View mediaView = viewLoader.inflateView(context, "layout/main");
+        assertThat(((TextView) mediaView.findViewById(R.id.title)).getAutoLinkMask(), equalTo(Linkify.ALL));
+        assertThat(((TextView) mediaView.findViewById(R.id.subtitle)).getAutoLinkMask(), equalTo(Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES));
     }
 
     @Test
