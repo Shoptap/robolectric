@@ -18,6 +18,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+import static com.xtremelabs.robolectric.util.SQLite.buildDeleteString;
+import static com.xtremelabs.robolectric.util.SQLite.buildInsertString;
+import static com.xtremelabs.robolectric.util.SQLite.buildUpdateString;
+import static com.xtremelabs.robolectric.util.SQLite.buildWhereClause;
 
 /**
  * Shadow for {@code SQLiteDatabase} that simulates the movement of a {@code Cursor} through database tables.
