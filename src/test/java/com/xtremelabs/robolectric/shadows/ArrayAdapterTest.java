@@ -2,7 +2,6 @@
 
 package com.xtremelabs.robolectric.shadows;
 
-import android.content.Context;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -10,7 +9,6 @@ import android.widget.TextView;
 import com.xtremelabs.robolectric.R;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.WithTestDefaultsRunner;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,5 +80,18 @@ public class ArrayAdapterTest {
         Assert.assertTrue(Robolectric.shadowOf(arrayAdapter3).getResourceId()==R.id.title);
         Assert.assertTrue(Robolectric.shadowOf(arrayAdapter3).getTextViewResourceId()!=R.id.title);
         Assert.assertTrue(Robolectric.shadowOf(arrayAdapter3).getTextViewResourceId()==0);
+    }
+    
+    @Test
+    public void test_remove() throws Exception {
+        Integer firstItem = arrayAdapter.getItem(0);
+        assertEquals(3, arrayAdapter.getCount());
+        assertEquals(new Integer(1), firstItem);
+
+        arrayAdapter.remove(firstItem);
+
+        assertEquals(2, arrayAdapter.getCount());
+        assertEquals(new Integer(2), arrayAdapter.getItem(0));
+        assertEquals(new Integer(3), arrayAdapter.getItem(1));
     }
 }

@@ -5,7 +5,9 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -13,9 +15,11 @@ import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.internal.Implementation;
 import com.xtremelabs.robolectric.internal.Implements;
 import com.xtremelabs.robolectric.internal.RealObject;
+import com.xtremelabs.robolectric.res.ResourceExtractor;
 import com.xtremelabs.robolectric.res.ResourceLoader;
 
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.Locale;
 
 import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
@@ -42,6 +46,19 @@ public class ShadowResources {
     private ResourceLoader resourceLoader;
 
     @Implementation
+    public  int getIdentifier(String name, String defType, String defPackage) {
+        Integer index = 0;
+        
+        ResourceExtractor resourceExtractor = resourceLoader.getResourceExtractor();
+        
+        index = resourceExtractor.getResourceId(defType + "/" + name);
+        if (index == null) {
+            return 0;
+        }
+        return index;
+    }
+    
+    @Implementation
     public int getColor(int id) throws Resources.NotFoundException {
         return resourceLoader.getColorValue(id);
     }
@@ -65,6 +82,17 @@ public class ShadowResources {
     public String getString(int id, Object... formatArgs) throws Resources.NotFoundException {
         String raw = getString(id);
         return String.format(Locale.ENGLISH, raw, formatArgs);
+    }
+
+    @Implementation
+    public String getQuantityString(int id, int quantity, Object... formatArgs) throws Resources.NotFoundException {
+        String raw = getQuantityString(id, quantity);
+        return String.format(Locale.ENGLISH, raw, formatArgs);
+    }
+
+    @Implementation
+    public String getQuantityString(int id, int quantity) throws Resources.NotFoundException {
+        return resourceLoader.getPluralStringValue(id, quantity);
     }
 
     @Implementation
@@ -102,8 +130,39 @@ public class ShadowResources {
         return displayMetrics;
     }
 
-    @Implementation
+    @SuppressWarnings("rawtypes")
+	@Implementation
     public Drawable getDrawable(int drawableResourceId) throws Resources.NotFoundException {
+    	
+    	ShadowContextWrapper shadowApp = Robolectric.shadowOf( Robolectric.application );
+    	Class rClass = shadowApp.getResourceLoader().getLocalRClass();
+    	
+    	// Check to make sure there is actually an R Class, if not
+    	// return just a BitmapDrawable
+    	if( rClass == null ) {
+    		return new BitmapDrawable(BitmapFactory.decodeResource(realResources, drawableResourceId));    		
+    	}
+
+    	// Load the R.anim and R.color Classes for interrogation
+    	Class animClass = null;
+    	Class colorClass = null;
+    	try {
+			animClass  = Class.forName( rClass.getCanonicalName() + "$anim" );
+			colorClass = Class.forName( rClass.getCanonicalName() + "$color" );
+		} catch (ClassNotFoundException e) {
+			return new BitmapDrawable(BitmapFactory.decodeResource(realResources, drawableResourceId));
+		}
+		
+		// Try to find the passed in resource ID
+		try {
+			for( Field field : animClass.getDeclaredFields() ) {
+				if( field.getInt( animClass ) == drawableResourceId )  { return new AnimationDrawable(); }
+			}
+			for( Field field : colorClass.getDeclaredFields() ) {
+				if( field.getInt( colorClass ) == drawableResourceId ) { return new ColorDrawable(); }
+			}			
+		} catch ( Exception e ) { } 
+		
         return new BitmapDrawable(BitmapFactory.decodeResource(realResources, drawableResourceId));
     }
 

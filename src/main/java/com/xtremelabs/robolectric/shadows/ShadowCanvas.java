@@ -1,11 +1,6 @@
 package com.xtremelabs.robolectric.shadows;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Path;
+import android.graphics.*;
 import com.xtremelabs.robolectric.internal.Implementation;
 import com.xtremelabs.robolectric.internal.Implements;
 
@@ -68,10 +63,10 @@ public class ShadowCanvas {
     public void drawPaint(Paint paint) {
         drawnPaint = paint;
     }
-    
+
     @Implementation
     public void drawColor(int color) {
-    	appendDescription( "draw color " + color);
+        appendDescription("draw color " + color);
     }
 
     @Implementation
@@ -87,6 +82,11 @@ public class ShadowCanvas {
         if (scaleX != 1 && scaleY != 1) {
             appendDescription(" scaled by (" + scaleX + "," + scaleY + ")");
         }
+    }
+
+    @Implementation
+    public void drawPath(Path path, Paint paint) {
+        pathPaintEvents.add(new PathPaintHistoryEvent(path, paint));
     }
 
     private void describeBitmap(Bitmap bitmap, Paint paint) {

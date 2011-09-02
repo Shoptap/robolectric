@@ -3,16 +3,13 @@ package com.xtremelabs.robolectric;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import com.xtremelabs.robolectric.util.TestUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.List;
-
+import static android.content.pm.ApplicationInfo.*;
 import static com.xtremelabs.robolectric.util.TestUtil.newConfig;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static android.content.pm.ApplicationInfo.*;
 
 @RunWith(WithTestDefaultsRunner.class)
 public class RobolectricConfigTest {
@@ -31,13 +28,19 @@ public class RobolectricConfigTest {
 
     public static class ConfigTestReceiver extends BroadcastReceiver {
         @Override
-        public void onReceive(Context context, Intent intent) { }
+        public void onReceive(final Context context, final Intent intent) { }
     }
 
     @Test
     public void shouldReadSdkVersionFromAndroidManifest() throws Exception {
         assertEquals(42, newConfig("TestAndroidManifestWithSdkVersion.xml").getSdkVersion());
         assertEquals(3, newConfig("TestAndroidManifestWithSdkVersion.xml").getMinSdkVersion());
+    }
+    
+    @Test
+    public void shouldRessolveSdkVersionForResources() throws Exception {
+        assertEquals(3, newConfig("TestAndroidManifestWithMinSdkVersionOnly.xml").getRealSdkVersion());
+        assertEquals(42, newConfig("TestAndroidManifestWithSdkVersion.xml").getRealSdkVersion());
     }
     
     @Test
@@ -70,7 +73,7 @@ public class RobolectricConfigTest {
         assertTrue(hasFlag(config.getApplicationFlags(), FLAG_VM_SAFE_MODE));
     }
     
-    private boolean hasFlag(int flags, int flag) {
+    private boolean hasFlag(final int flags, final int flag) {
     	return (flags & flag) != 0;
     }
 }

@@ -8,8 +8,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 
 @RunWith(WithTestDefaultsRunner.class)
@@ -58,6 +56,13 @@ public class BundleTest {
         assertEquals(true, bundle.getBoolean("foo"));
         assertEquals(false, bundle.getBoolean("bar"));
         assertEquals(true, bundle.getBoolean("bar", true));
+    }
+
+    @Test
+    public void testIsEmpty() {
+        assertTrue(bundle.isEmpty());
+        bundle.putBoolean("foo", true);
+        assertFalse(bundle.isEmpty());
     }
 
     @Test

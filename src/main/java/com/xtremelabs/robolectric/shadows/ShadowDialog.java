@@ -32,19 +32,20 @@ public class ShadowDialog {
     private View inflatedView;
     private boolean hasBeenDismissed;
     private DialogInterface.OnDismissListener onDismissListener;
-    private CharSequence title;
+    protected CharSequence title;
     private DialogInterface.OnCancelListener onCancelListener;
     private Window window;
     private Activity ownerActivity;
-    private boolean isCancelable;
+    private boolean isCancelable = true;
     private boolean hasShownBefore;
     
     public static void reset() {
         setLatestDialog(null);
     }
 
-    public static ShadowDialog getLatestDialog() {
-        return Robolectric.getShadowApplication().getLatestDialog();
+    public static Dialog getLatestDialog() {
+        ShadowDialog dialog = Robolectric.getShadowApplication().getLatestDialog();
+        return dialog == null ? null : dialog.realDialog;
     }
 
     public static void setLatestDialog(ShadowDialog latestDialog) {
@@ -58,8 +59,6 @@ public class ShadowDialog {
     public void __constructor__(Context context, int themeId) {
         this.context = context;
         this.themeId = themeId;
-
-        setLatestDialog(this);
     }
 
     @Implementation
@@ -114,6 +113,7 @@ public class ShadowDialog {
             throw new RuntimeException(e);
         }
         hasShownBefore = true;
+        setLatestDialog(this);
     }
 
     @Implementation
@@ -174,8 +174,12 @@ public class ShadowDialog {
     }
 
     @Implementation
-    public void setOnCancelListener(final DialogInterface.OnCancelListener listener) {
+    public void setOnCancelListener(DialogInterface.OnCancelListener listener) {
         this.onCancelListener = listener;
+    }
+
+    public DialogInterface.OnCancelListener getOnCancelListener() {
+        return onCancelListener;
     }
 
     @Implementation

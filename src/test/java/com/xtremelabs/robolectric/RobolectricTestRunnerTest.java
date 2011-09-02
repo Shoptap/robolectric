@@ -6,9 +6,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.model.InitializationError;
 
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunnerTest.RunnerForTesting.class)
 public class RobolectricTestRunnerTest {
@@ -20,6 +18,14 @@ public class RobolectricTestRunnerTest {
         assertFalse(((MyTestApplication) Robolectric.application).onCreateWasCalled);
         assertNotNull(shadowOf(Robolectric.application).getResourceLoader());
     }
+
+    @Test
+    public void setStaticValue_shouldIgnoreFinalModifier() {
+        RobolectricTestRunner.setStaticValue(android.os.Build.class, "MODEL", "expected value");
+
+        assertEquals("expected value", android.os.Build.MODEL);
+    }
+
 
     public static class RunnerForTesting extends WithTestDefaultsRunner {
         public RunnerForTesting(Class<?> testClass) throws InitializationError {

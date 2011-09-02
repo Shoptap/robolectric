@@ -2,9 +2,9 @@ package com.xtremelabs.robolectric.shadows;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.text.method.MovementMethod;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
-import android.text.method.MovementMethod;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
@@ -23,6 +23,7 @@ public class ShadowTextView extends ShadowView {
     private CharSequence text = "";
     private CompoundDrawables compoundDrawablesImpl;
     private Integer textColorHexValue;
+    private Integer hintColorHexValue;
     private float textSize = 14.0f;
     private boolean autoLinkPhoneNumbers;
     private int autoLinkMask;
@@ -41,6 +42,8 @@ public class ShadowTextView extends ShadowView {
         applyTextAttribute();
         applyAutoLinkMaskAttribute();
         applyTextColorAttribute();
+        applyHintAttribute();
+        applyHintColorAttribute();
         applyCompoundDrawablesWithIntrinsicBoundsAttributes();
     }
 
@@ -78,18 +81,28 @@ public class ShadowTextView extends ShadowView {
     }
 
     @Implementation
-    public final void setHint(int resId) {
-        this.hintText = getResources().getText(resId);
-    }
-
-    @Implementation
     public void setTextAppearance(Context context, int resid) {
         textAppearanceId = resid;
     }
 
     @Implementation
+    public final void setHint(int resId) {
+        this.hintText = getResources().getText(resId);
+    }
+
+    @Implementation
+    public final void setHint(CharSequence hintText) {
+        this.hintText = hintText;
+    }
+
+    @Implementation
     public CharSequence getHint() {
         return hintText;
+    }
+
+     @Implementation
+    public final void setHintTextColor(int color) {
+        hintColorHexValue = color;
     }
     
     @Implementation
@@ -242,6 +255,10 @@ public class ShadowTextView extends ShadowView {
         return textAppearanceId;
     }
 
+    public Integer getHintColorHexValue() {
+        return hintColorHexValue;
+    }
+
     @Implementation
     public float getTextSize() {
         return textSize;
@@ -293,6 +310,31 @@ public class ShadowTextView extends ShadowView {
             } else if (colorValue.startsWith("#")) {
                 int colorFromHex = (int) Long.valueOf(colorValue.replaceAll("#", ""), 16).longValue();
                 setTextColor(colorFromHex);
+            }
+        }
+    }
+
+    private void applyHintAttribute() {
+        String hint = attributeSet.getAttributeValue("android", "hint");
+        if (hint != null) {
+            if (hint.startsWith("@string/")) {
+                int textResId = attributeSet.getAttributeResourceValue("android", "hint", 0);
+                hint = context.getResources().getString(textResId);
+
+            }
+            setHint(hint);
+        }
+    }
+
+    private void applyHintColorAttribute() {
+        String colorValue = attributeSet.getAttributeValue("android", "hintColor");
+        if (colorValue != null) {
+            if (colorValue.startsWith("@color/") || colorValue.startsWith("@android:color/")) {
+                int colorResId = attributeSet.getAttributeResourceValue("android", "hintColor", 0);
+                setHintTextColor(context.getResources().getColor(colorResId));
+            } else if (colorValue.startsWith("#")) {
+                int colorFromHex = (int) Long.valueOf(colorValue.replaceAll("#", ""), 16).longValue();
+                setHintTextColor(colorFromHex);
             }
         }
     }
