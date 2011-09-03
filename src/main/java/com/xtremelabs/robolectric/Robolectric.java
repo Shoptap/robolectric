@@ -23,6 +23,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.nfc.NfcAdapter;
 import android.os.*;
 import android.preference.*;
 import android.telephony.TelephonyManager;
@@ -732,6 +733,10 @@ public class Robolectric {
     
     public static ShadowSensorManager shadowOf(SensorManager instance) {
     	return (ShadowSensorManager) shadowOf_(instance);
+    }
+
+    public static ShadowNfcAdapter shadowOf(NfcAdapter instance) {
+        return (ShadowNfcAdapter) shadowOf_(instance);
     }
 
     @SuppressWarnings({"unchecked"})
